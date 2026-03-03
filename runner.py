@@ -190,8 +190,8 @@ def main():
         "mode": "alt",
 
         # 训练总集数与每集步数
-        "epochs": 30,
-        "steps": 200,
+        "epochs": 500,
+        "steps": 1000,
 
         # train_edge / eval 下固定路径数 N（None 表示用 N_min）
         "fixed_N": None,
@@ -453,7 +453,7 @@ def main():
         fixed_N = int(CONFIG["fixed_N"]) if CONFIG.get("fixed_N") is not None else None
 
         # Steps sweep list (as requested)
-        steps_sweep = [100] #, 200, 300, 400, 500, 600, 700, 800, 900, 1500, 2000
+        steps_sweep = [1000] #, 200, 300, 400, 500, 600, 700, 800, 900, 1500, 2000
 
         for STEPS in steps_sweep:
             # Repoint episode summary writer to a steps-specific file: episode_summary_<steps>.csv

@@ -76,6 +76,54 @@ def _set_seed(seed: int = 42):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
+class ReplayBuffer:
+    """
+    简单循环 replay buffer，存储 Central SAC 的经验
+    每条经验：(obs, N_idx, a_embed, reward)
+    """
+    def __init__(self, capacity: int = 2000, device=None):
+        self.capacity = capacity
+        self.device = device
+        self.buf_obs = []
+        self.buf_N_idx = []
+        self.buf_a_embed = []
+        self.buf_reward = []
+        self._ptr = 0
+        self._size = 0
+
+    def push(self, obs: torch.Tensor, N_idx: int,
+             a_embed: torch.Tensor, reward: float):
+        """存一条经验（detach 后存 CPU tensor 节省显存）"""
+        obs_cpu = obs.detach().cpu()
+        a_cpu   = a_embed.detach().cpu()
+
+        if self._size < self.capacity:
+            self.buf_obs.append(obs_cpu)
+            self.buf_N_idx.append(N_idx)
+            self.buf_a_embed.append(a_cpu)
+            self.buf_reward.append(reward)
+            self._size += 1
+        else:
+            # 循环覆盖
+            self.buf_obs[self._ptr]    = obs_cpu
+            self.buf_N_idx[self._ptr]  = N_idx
+            self.buf_a_embed[self._ptr]= a_cpu
+            self.buf_reward[self._ptr] = reward
+
+        self._ptr = (self._ptr + 1) % self.capacity
+
+    def sample(self, batch_size: int):
+        """随机采样 batch_size 条，返回 device 上的 tensor"""
+        idxs = np.random.randint(0, self._size, size=batch_size)
+        obs    = torch.cat([self.buf_obs[i]     for i in idxs], dim=0).to(self.device)
+        N_idxs = [self.buf_N_idx[i]              for i in idxs]
+        a_emb  = torch.cat([self.buf_a_embed[i] for i in idxs], dim=0).to(self.device)
+        rews   = torch.tensor([self.buf_reward[i] for i in idxs],
+                               dtype=torch.float32, device=self.device).unsqueeze(1)
+        return obs, N_idxs, a_emb, rews
+
+    def __len__(self):
+        return self._size
 
 # ----------------------------
 # Central SAC：网络定义
@@ -265,6 +313,13 @@ class BEARTorchSystem:
         # 轻量经验缓存（只存最近若干步）
         self.buf_central = []  # (obs, a_embed, reward)
         self.buf_edge = []     # (cand_feats, mask, returns)  简化：做监督式回归到“好”的分数
+
+        # Replay buffer
+        self.replay_buffer = ReplayBuffer(capacity=5000, device=self.device)
+        self.batch_size    = 64    # 每次更新用的 batch 大小
+        self.update_every  = 10    # 每积累多少条经验做一次批量更新
+        self.warmup_steps  = 200   # buffer 里至少有这么多条才开始更新
+        self._step_count   = 0     # 全局步数计数
 
         # 配额
         self.qm = QuotaManager(N_min=self.N_min, N_max=self.N_max, smooth_tau=0.9)
@@ -457,7 +512,8 @@ class BEARTorchSystem:
         active_paths = chosen_sorted[:max(1, N-1)]
         backup_path  = chosen_sorted[max(1, N-1)]
 
-        bw_each = bw / float(max(1, len(active_paths)))
+        # bw_each = bw / float(max(1, len(active_paths)))
+        bw_each = bw / float(max(1, N - 1))  # 同样除以 N-1
         bundle = list(active_paths) + [backup_path]
         if not self.env.check_paths_feasible(bundle, bw_each):
             ev = {
@@ -529,87 +585,166 @@ class BEARTorchSystem:
         return ev
 
     # ---------- 训练：Central（SAC 轻量版） ----------
+    # def _central_update(self, obs_t: torch.Tensor, N_idx: int,
+    #                     alpha_logits: torch.Tensor, alpha_probs: torch.Tensor,
+    #                     mask_np: np.ndarray, reward: float,
+    #                     step_t: Optional[int] = None, sid: Optional[int] = None,
+    #                     update_type: str = "central_update"):
+    #     """
+    #     单步轻量 SAC 更新：使用 (obs, a_embed, r, obs'≈obs) 的伪目标，主要用于在线自适应
+    #     """
+    #     self.central_actor.train(); self.central_critic.train()
+    #     mask = _to_tensor(mask_np.reshape(1, -1), self.device)
+
+    #     # 动作嵌入 a_embed
+    #     a_embed = self._a_embed(N_idx, alpha_probs, mask)
+
+    #     # 目标 Q（无下一状态，近似 r）
+    #     r = torch.tensor([[reward]], dtype=torch.float32, device=self.device)
+
+    #     # 更新 Q
+    #     q1, q2 = self.central_critic(obs_t, a_embed)
+    #     critic_loss = F.mse_loss(q1, r) + F.mse_loss(q2, r)
+    #     self.opt_critic.zero_grad(); critic_loss.backward(); self.opt_critic.step()
+
+    #     # 记录 TD / critic loss 信息
+    #     try:
+    #         q1v = q1.detach().cpu().numpy()
+    #         td_err = float(np.mean(np.abs(q1v - r.detach().cpu().numpy())))
+    #     except Exception:
+    #         td_err = float('nan')
+
+    #     # 更新 actor（最小化 alpha*entropy - Q）
+    #     with torch.no_grad():
+    #         # 重新采样动作（但我们简化为用当前动作的近似）
+    #         q_min = torch.min(q1, q2)
+    #     alpha = self.log_alpha.exp()
+    #     # 近似熵项：对 N 分布
+    #     logits_N, _ = self.central_actor(obs_t)
+    #     pi_N = torch.softmax(logits_N, dim=-1) + 1e-8
+    #     ent = -(pi_N * torch.log(pi_N)).sum(dim=-1, keepdim=True)
+    #     actor_loss = (alpha * ent - q_min).mean()
+
+    #     self.opt_actor.zero_grad(); actor_loss.backward(); self.opt_actor.step()
+
+    #     # 温度更新
+    #     alpha_loss = -(self.log_alpha * (ent.detach() + self.target_entropy)).mean()
+    #     self.opt_alpha.zero_grad(); alpha_loss.backward(); self.opt_alpha.step()
+
+    #     # 软更新（这里等价直接拷贝，亦可加 τ）
+    #     self.central_critic_target.load_state_dict(self.central_critic.state_dict())
+    #     # 记录训练统计
+    #     try:
+    #         self.train_stats['critic_loss'].append(float(critic_loss.detach().cpu().item()))
+    #     except Exception:
+    #         pass
+    #     try:
+    #         self.train_stats['actor_loss'].append(float(actor_loss.detach().cpu().item()))
+    #     except Exception:
+    #         pass
+    #     try:
+    #         self.train_stats['alpha_loss'].append(float(alpha_loss.detach().cpu().item()))
+    #     except Exception:
+    #         pass
+    #     try:
+    #         self.train_stats['entropy'].append(float(ent.detach().cpu().item()))
+    #     except Exception:
+    #         pass
+    #     try:
+    #         self.train_stats['td_error'].append(float(td_err))
+    #     except Exception:
+    #         pass
+    #     # step-level update log
+    #     self._log_update({
+    #         "t": step_t,
+    #         "sid": sid,
+    #         "update_type": update_type,
+    #         "reward": reward,
+    #         "critic_loss": float(critic_loss.detach().cpu().item()),
+    #         "actor_loss": float(actor_loss.detach().cpu().item()),
+    #         "alpha_loss": float(alpha_loss.detach().cpu().item()),
+    #         "entropy": float(ent.detach().cpu().item()),
+    #         "td_error": float(td_err),
+    #         "edge_loss": "",
+    #     })
     def _central_update(self, obs_t: torch.Tensor, N_idx: int,
                         alpha_logits: torch.Tensor, alpha_probs: torch.Tensor,
                         mask_np: np.ndarray, reward: float,
-                        step_t: Optional[int] = None, sid: Optional[int] = None,
-                        update_type: str = "central_update"):
+                        step_t=None, sid=None, update_type="central_update"):
         """
-        单步轻量 SAC 更新：使用 (obs, a_embed, r, obs'≈obs) 的伪目标，主要用于在线自适应
+        把经验压入 buffer；满足条件时触发一次批量更新
         """
-        self.central_actor.train(); self.central_critic.train()
         mask = _to_tensor(mask_np.reshape(1, -1), self.device)
-
-        # 动作嵌入 a_embed
         a_embed = self._a_embed(N_idx, alpha_probs, mask)
 
-        # 目标 Q（无下一状态，近似 r）
-        r = torch.tensor([[reward]], dtype=torch.float32, device=self.device)
+        # 存入 buffer
+        self.replay_buffer.push(obs_t, N_idx, a_embed, reward)
+        self._step_count += 1
 
-        # 更新 Q
-        q1, q2 = self.central_critic(obs_t, a_embed)
-        critic_loss = F.mse_loss(q1, r) + F.mse_loss(q2, r)
-        self.opt_critic.zero_grad(); critic_loss.backward(); self.opt_critic.step()
+        # 条件：buffer 够热身量 且 到了更新周期
+        if (len(self.replay_buffer) >= self.warmup_steps and
+                self._step_count % self.update_every == 0):
+            self._batch_update(step_t=step_t, sid=sid, update_type=update_type)
 
-        # 记录 TD / critic loss 信息
-        try:
-            q1v = q1.detach().cpu().numpy()
-            td_err = float(np.mean(np.abs(q1v - r.detach().cpu().numpy())))
-        except Exception:
-            td_err = float('nan')
 
-        # 更新 actor（最小化 alpha*entropy - Q）
+    def _batch_update(self, step_t=None, sid=None, update_type="batch_update"):
+        """
+        从 buffer 中采样一个 batch，做一次完整的 SAC 更新
+        """
+        obs_b, N_idxs, a_emb_b, rew_b = self.replay_buffer.sample(self.batch_size)
+
+        self.central_actor.train()
+        self.central_critic.train()
+
+        # ---- Critic 更新 ----
+        q1, q2 = self.central_critic(obs_b, a_emb_b)
+        critic_loss = F.mse_loss(q1, rew_b) + F.mse_loss(q2, rew_b)
+        self.opt_critic.zero_grad()
+        critic_loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.central_critic.parameters(), 1.0)
+        self.opt_critic.step()
+
+        td_err = float(torch.mean(torch.abs(q1.detach() - rew_b)).item())
+
+        # ---- Actor 更新 ----
         with torch.no_grad():
-            # 重新采样动作（但我们简化为用当前动作的近似）
             q_min = torch.min(q1, q2)
         alpha = self.log_alpha.exp()
-        # 近似熵项：对 N 分布
-        logits_N, _ = self.central_actor(obs_t)
+        logits_N, _ = self.central_actor(obs_b)
         pi_N = torch.softmax(logits_N, dim=-1) + 1e-8
-        ent = -(pi_N * torch.log(pi_N)).sum(dim=-1, keepdim=True)
-        actor_loss = (alpha * ent - q_min).mean()
+        ent  = -(pi_N * torch.log(pi_N)).sum(dim=-1, keepdim=True)
+        actor_loss = (alpha.detach() * ent - q_min).mean()
 
-        self.opt_actor.zero_grad(); actor_loss.backward(); self.opt_actor.step()
+        self.opt_actor.zero_grad()
+        actor_loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.central_actor.parameters(), 1.0)
+        self.opt_actor.step()
 
-        # 温度更新
+        # ---- 温度更新 ----
         alpha_loss = -(self.log_alpha * (ent.detach() + self.target_entropy)).mean()
-        self.opt_alpha.zero_grad(); alpha_loss.backward(); self.opt_alpha.step()
+        self.opt_alpha.zero_grad()
+        alpha_loss.backward()
+        self.opt_alpha.step()
 
-        # 软更新（这里等价直接拷贝，亦可加 τ）
-        self.central_critic_target.load_state_dict(self.central_critic.state_dict())
-        # 记录训练统计
-        try:
-            self.train_stats['critic_loss'].append(float(critic_loss.detach().cpu().item()))
-        except Exception:
-            pass
-        try:
-            self.train_stats['actor_loss'].append(float(actor_loss.detach().cpu().item()))
-        except Exception:
-            pass
-        try:
-            self.train_stats['alpha_loss'].append(float(alpha_loss.detach().cpu().item()))
-        except Exception:
-            pass
-        try:
-            self.train_stats['entropy'].append(float(ent.detach().cpu().item()))
-        except Exception:
-            pass
-        try:
-            self.train_stats['td_error'].append(float(td_err))
-        except Exception:
-            pass
-        # step-level update log
+        # 软更新 target critic（τ=0.005）
+        tau = 0.005
+        for p, pt in zip(self.central_critic.parameters(),
+                        self.central_critic_target.parameters()):
+            pt.data.copy_(tau * p.data + (1 - tau) * pt.data)
+
+        # 记录统计
+        cl = float(critic_loss.detach().item())
+        al = float(actor_loss.detach().item())
+        aal = float(alpha_loss.detach().item())
+        en = float(ent.mean().detach().item())
+        for k, v in [('critic_loss', cl), ('actor_loss', al),
+                    ('alpha_loss', aal), ('entropy', en), ('td_error', td_err)]:
+            self.train_stats[k].append(v)
+
         self._log_update({
-            "t": step_t,
-            "sid": sid,
-            "update_type": update_type,
-            "reward": reward,
-            "critic_loss": float(critic_loss.detach().cpu().item()),
-            "actor_loss": float(actor_loss.detach().cpu().item()),
-            "alpha_loss": float(alpha_loss.detach().cpu().item()),
-            "entropy": float(ent.detach().cpu().item()),
-            "td_error": float(td_err),
-            "edge_loss": "",
+            "t": step_t, "sid": sid, "update_type": update_type, "reward": "",
+            "critic_loss": cl, "actor_loss": al, "alpha_loss": aal,
+            "entropy": en, "td_error": td_err, "edge_loss": "",
         })
 
     # ---------- 训练：Edge（PPO 极简替代——监督式评分微调） ----------
@@ -663,24 +798,38 @@ class BEARTorchSystem:
         })
 
     # ---------- failover 辅助 ----------
+    # def _count_down_active_paths(self, session: Dict[str, Any]) -> int:
+    #     if hasattr(self.env, "count_down_active_paths"):
+    #         try: return int(self.env.count_down_active_paths(session))
+    #         except Exception: pass
+    #     if hasattr(self.env, "get_down_active_paths"):
+    #         try:
+    #             lst = self.env.get_down_active_paths(session)
+    #             return len(lst) if lst is not None else 0
+    #         except Exception: pass
+    #     # 回退：若无接口则视作未知
+    #     paths = session.get("active_set") or session.get("paths_active") or session.get("paths") or []
+    #     if not hasattr(self.env, "is_path_up"): return -1
+    #     cnt = 0
+    #     for p in (paths or []):
+    #         try:
+    #             if not self.env.is_path_up(p): cnt += 1
+    #         except Exception:
+    #             continue
+    #     return cnt
     def _count_down_active_paths(self, session: Dict[str, Any]) -> int:
-        if hasattr(self.env, "count_down_active_paths"):
-            try: return int(self.env.count_down_active_paths(session))
-            except Exception: pass
-        if hasattr(self.env, "get_down_active_paths"):
-            try:
-                lst = self.env.get_down_active_paths(session)
-                return len(lst) if lst is not None else 0
-            except Exception: pass
-        # 回退：若无接口则视作未知
-        paths = session.get("active_set") or session.get("paths_active") or session.get("paths") or []
-        if not hasattr(self.env, "is_path_up"): return -1
+        all_paths = session.get("paths", [])
+        active_idx = session.get("active_idx", [])
+        if not all_paths or not active_idx:
+            return 0
         cnt = 0
-        for p in (paths or []):
-            try:
-                if not self.env.is_path_up(p): cnt += 1
-            except Exception:
-                continue
+        for idx in active_idx:
+            if idx < len(all_paths):
+                try:
+                    if not self.env.is_path_up(all_paths[idx]):
+                        cnt += 1
+                except Exception:
+                    continue
         return cnt
 
     # ---------- 单轮 ----------

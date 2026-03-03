@@ -210,7 +210,7 @@ class SummaryAggregator:
 
         place_rate = self.placed / max(1, self.attempted)
         fo_hit_rate = self.fo_hit / max(1, self.fo_cnt)
-        emp_avail = (self.placed - self.fo_miss) / max(1, self.attempted)
+        emp_avail = (self.placed - self.fo_miss) / max(1, self.placed)
         rel_pred_avg = (self.rel_pred_sum / max(1, self.rel_pred_cnt)) if self.rel_pred_cnt > 0 else 0.0
         avg_cost_total = self.cost_sum / max(1, self.placed)
 
