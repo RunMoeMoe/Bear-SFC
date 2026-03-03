@@ -1,0 +1,61 @@
+2025-10-02 02:23:18,500 | INFO | Output directory: /usr/wzc/project/SFC2/save/PRANOS/20251002-022318
+2025-10-02 02:23:19,433 | WARNING | save central_dqn failed at ep 0: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:19,434 | INFO | [ALT EP 000] place=0.559 fo_hit=0.438 emp_av=0.462 cost=13.907 lat=4.317
+2025-10-02 02:23:20,468 | WARNING | save central_dqn failed at ep 1: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:20,468 | INFO | [ALT EP 001] place=0.581 fo_hit=0.471 emp_av=0.484 cost=14.839 lat=4.386
+2025-10-02 02:23:21,414 | WARNING | save central_dqn failed at ep 2: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:21,414 | INFO | [ALT EP 002] place=0.531 fo_hit=0.286 emp_av=0.429 cost=13.865 lat=4.076
+2025-10-02 02:23:22,389 | WARNING | save central_dqn failed at ep 3: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:22,389 | INFO | [ALT EP 003] place=0.568 fo_hit=0.455 emp_av=0.442 cost=13.259 lat=4.031
+2025-10-02 02:23:23,401 | WARNING | save central_dqn failed at ep 4: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:23,401 | INFO | [ALT EP 004] place=0.513 fo_hit=0.467 emp_av=0.372 cost=14.657 lat=4.462
+2025-10-02 02:23:24,358 | WARNING | save central_dqn failed at ep 5: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:24,358 | INFO | [ALT EP 005] place=0.541 fo_hit=0.333 emp_av=0.418 cost=15.102 lat=4.245
+2025-10-02 02:23:25,400 | WARNING | save central_dqn failed at ep 6: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:25,400 | INFO | [ALT EP 006] place=0.592 fo_hit=0.800 emp_av=0.563 cost=12.970 lat=4.159
+2025-10-02 02:23:26,389 | WARNING | save central_dqn failed at ep 7: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:26,389 | INFO | [ALT EP 007] place=0.546 fo_hit=0.333 emp_av=0.398 cost=14.123 lat=4.117
+2025-10-02 02:23:27,324 | WARNING | save central_dqn failed at ep 8: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:27,324 | INFO | [ALT EP 008] place=0.527 fo_hit=0.643 emp_av=0.473 cost=14.219 lat=4.235
+2025-10-02 02:23:28,380 | WARNING | save central_dqn failed at ep 9: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:28,380 | INFO | [ALT EP 009] place=0.505 fo_hit=1.000 emp_av=0.505 cost=13.927 lat=4.295
+2025-10-02 02:23:29,391 | WARNING | save central_dqn failed at ep 10: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:29,391 | INFO | [ALT EP 010] place=0.575 fo_hit=0.571 emp_av=0.519 cost=14.570 lat=4.201
+2025-10-02 02:23:30,445 | WARNING | save central_dqn failed at ep 11: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:30,445 | INFO | [ALT EP 011] place=0.524 fo_hit=0.308 emp_av=0.437 cost=14.426 lat=3.876
+2025-10-02 02:23:31,360 | WARNING | save central_dqn failed at ep 12: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:31,360 | INFO | [ALT EP 012] place=0.640 fo_hit=0.444 emp_av=0.528 cost=13.747 lat=4.161
+2025-10-02 02:23:32,250 | WARNING | save central_dqn failed at ep 13: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:32,250 | INFO | [ALT EP 013] place=0.566 fo_hit=0.312 emp_av=0.455 cost=14.397 lat=4.251
+2025-10-02 02:23:33,343 | WARNING | save central_dqn failed at ep 14: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:33,343 | INFO | [ALT EP 014] place=0.548 fo_hit=0.600 emp_av=0.490 cost=14.210 lat=3.919
+2025-10-02 02:23:34,319 | WARNING | save central_dqn failed at ep 15: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:34,319 | INFO | [ALT EP 015] place=0.520 fo_hit=0.467 emp_av=0.440 cost=14.255 lat=4.129
+2025-10-02 02:23:35,356 | WARNING | save central_dqn failed at ep 16: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:35,356 | INFO | [ALT EP 016] place=0.598 fo_hit=0.714 emp_av=0.577 cost=14.328 lat=4.239
+2025-10-02 02:23:36,354 | WARNING | save central_dqn failed at ep 17: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:36,354 | INFO | [ALT EP 017] place=0.573 fo_hit=0.353 emp_av=0.458 cost=13.352 lat=3.963
+2025-10-02 02:23:37,265 | WARNING | save central_dqn failed at ep 18: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:37,265 | INFO | [ALT EP 018] place=0.515 fo_hit=0.389 emp_av=0.402 cost=13.903 lat=4.418
+2025-10-02 02:23:38,246 | WARNING | save central_dqn failed at ep 19: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:38,246 | INFO | [ALT EP 019] place=0.471 fo_hit=0.333 emp_av=0.373 cost=14.424 lat=4.216
+2025-10-02 02:23:39,444 | WARNING | save central_dqn failed at ep 20: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:39,445 | INFO | [ALT EP 020] place=0.505 fo_hit=0.350 emp_av=0.387 cost=14.445 lat=4.095
+2025-10-02 02:23:40,633 | WARNING | save central_dqn failed at ep 21: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:40,633 | INFO | [ALT EP 021] place=0.541 fo_hit=0.381 emp_av=0.422 cost=14.231 lat=4.027
+2025-10-02 02:23:41,773 | WARNING | save central_dqn failed at ep 22: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:41,773 | INFO | [ALT EP 022] place=0.455 fo_hit=0.529 emp_av=0.382 cost=14.442 lat=4.046
+2025-10-02 02:23:42,719 | WARNING | save central_dqn failed at ep 23: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:42,719 | INFO | [ALT EP 023] place=0.588 fo_hit=0.737 emp_av=0.536 cost=13.662 lat=4.134
+2025-10-02 02:23:43,685 | WARNING | save central_dqn failed at ep 24: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:43,686 | INFO | [ALT EP 024] place=0.545 fo_hit=0.600 emp_av=0.485 cost=14.266 lat=4.040
+2025-10-02 02:23:44,778 | WARNING | save central_dqn failed at ep 25: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:44,778 | INFO | [ALT EP 025] place=0.594 fo_hit=0.524 emp_av=0.490 cost=14.218 lat=4.210
+2025-10-02 02:23:45,941 | WARNING | save central_dqn failed at ep 26: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:45,941 | INFO | [ALT EP 026] place=0.581 fo_hit=0.545 emp_av=0.533 cost=13.461 lat=3.898
+2025-10-02 02:23:47,008 | WARNING | save central_dqn failed at ep 27: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:47,008 | INFO | [ALT EP 027] place=0.535 fo_hit=0.600 emp_av=0.455 cost=13.974 lat=4.168
+2025-10-02 02:23:48,220 | WARNING | save central_dqn failed at ep 28: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:48,220 | INFO | [ALT EP 028] place=0.495 fo_hit=0.417 emp_av=0.430 cost=13.994 lat=4.183
+2025-10-02 02:23:49,313 | WARNING | save central_dqn failed at ep 29: 'BaselineSystem' object has no attribute 'central'
+2025-10-02 02:23:49,313 | INFO | [ALT EP 029] place=0.548 fo_hit=0.357 emp_av=0.375 cost=14.132 lat=4.302

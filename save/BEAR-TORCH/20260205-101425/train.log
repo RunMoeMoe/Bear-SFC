@@ -1,0 +1,32 @@
+2026-02-05 10:14:25,373 | INFO | Output directory: /usr/wzc/project/SFC2/save/BEAR-TORCH/20260205-101425
+2026-02-05 10:14:25,812 | INFO | [RUN] Start sweep for STEPS=100
+2026-02-05 10:14:26,176 | INFO | [STEPS 100 | ALT EP 000] place=0.769 fo_hit=0.545 emp_av=0.641 cost=16.860 lat=5.141
+2026-02-05 10:14:26,501 | INFO | [STEPS 100 | ALT EP 001] place=0.630 fo_hit=0.667 emp_av=0.519 cost=19.846 lat=5.586
+2026-02-05 10:14:26,759 | INFO | [STEPS 100 | ALT EP 002] place=0.775 fo_hit=0.667 emp_av=0.700 cost=19.474 lat=5.317
+2026-02-05 10:14:27,071 | INFO | [STEPS 100 | ALT EP 003] place=0.679 fo_hit=0.500 emp_av=0.604 cost=18.092 lat=5.005
+2026-02-05 10:14:27,356 | INFO | [STEPS 100 | ALT EP 004] place=0.583 fo_hit=0.625 emp_av=0.458 cost=19.686 lat=5.229
+2026-02-05 10:14:27,669 | INFO | [STEPS 100 | ALT EP 005] place=0.760 fo_hit=0.250 emp_av=0.700 cost=20.235 lat=4.888
+2026-02-05 10:14:27,997 | INFO | [STEPS 100 | ALT EP 006] place=0.660 fo_hit=0.500 emp_av=0.623 cost=18.658 lat=4.988
+2026-02-05 10:14:28,238 | INFO | [STEPS 100 | ALT EP 007] place=0.667 fo_hit=0.600 emp_av=0.619 cost=18.851 lat=5.190
+2026-02-05 10:14:28,562 | INFO | [STEPS 100 | ALT EP 008] place=0.690 fo_hit=0.625 emp_av=0.534 cost=18.881 lat=5.553
+2026-02-05 10:14:28,886 | INFO | [STEPS 100 | ALT EP 009] place=0.655 fo_hit=1.000 emp_av=0.655 cost=21.352 lat=5.496
+2026-02-05 10:14:29,176 | INFO | [STEPS 100 | ALT EP 010] place=0.577 fo_hit=0.273 emp_av=0.423 cost=20.815 lat=5.376
+2026-02-05 10:14:29,457 | INFO | [STEPS 100 | ALT EP 011] place=0.565 fo_hit=0.636 emp_av=0.478 cost=19.045 lat=5.286
+2026-02-05 10:14:29,738 | INFO | [STEPS 100 | ALT EP 012] place=0.652 fo_hit=1.000 emp_av=0.652 cost=18.119 lat=5.142
+2026-02-05 10:14:30,048 | INFO | [STEPS 100 | ALT EP 013] place=0.561 fo_hit=0.727 emp_av=0.509 cost=16.178 lat=4.997
+2026-02-05 10:14:30,374 | INFO | [STEPS 100 | ALT EP 014] place=0.648 fo_hit=0.500 emp_av=0.574 cost=18.406 lat=4.900
+2026-02-05 10:14:30,685 | INFO | [STEPS 100 | ALT EP 015] place=0.722 fo_hit=0.667 emp_av=0.667 cost=18.915 lat=5.216
+2026-02-05 10:14:30,953 | INFO | [STEPS 100 | ALT EP 016] place=0.571 fo_hit=0.667 emp_av=0.531 cost=19.456 lat=4.828
+2026-02-05 10:14:31,231 | INFO | [STEPS 100 | ALT EP 017] place=0.568 fo_hit=0.800 emp_av=0.545 cost=17.437 lat=4.983
+2026-02-05 10:14:31,529 | INFO | [STEPS 100 | ALT EP 018] place=0.667 fo_hit=1.000 emp_av=0.667 cost=18.469 lat=4.861
+2026-02-05 10:14:31,842 | INFO | [STEPS 100 | ALT EP 019] place=0.660 fo_hit=0.750 emp_av=0.620 cost=18.585 lat=5.247
+2026-02-05 10:14:32,141 | INFO | [STEPS 100 | ALT EP 020] place=0.630 fo_hit=0.750 emp_av=0.611 cost=20.882 lat=5.300
+2026-02-05 10:14:32,449 | INFO | [STEPS 100 | ALT EP 021] place=0.750 fo_hit=0.833 emp_av=0.731 cost=18.626 lat=5.160
+2026-02-05 10:14:32,754 | INFO | [STEPS 100 | ALT EP 022] place=0.673 fo_hit=0.556 emp_av=0.596 cost=19.728 lat=5.159
+2026-02-05 10:14:33,062 | INFO | [STEPS 100 | ALT EP 023] place=0.667 fo_hit=0.300 emp_av=0.529 cost=19.704 lat=5.102
+2026-02-05 10:14:33,324 | INFO | [STEPS 100 | ALT EP 024] place=0.689 fo_hit=0.500 emp_av=0.644 cost=19.417 lat=5.171
+2026-02-05 10:14:33,597 | INFO | [STEPS 100 | ALT EP 025] place=0.727 fo_hit=0.400 emp_av=0.659 cost=15.893 lat=4.553
+2026-02-05 10:14:33,868 | INFO | [STEPS 100 | ALT EP 026] place=0.723 fo_hit=0.571 emp_av=0.660 cost=18.507 lat=5.023
+2026-02-05 10:14:34,157 | INFO | [STEPS 100 | ALT EP 027] place=0.577 fo_hit=0.533 emp_av=0.442 cost=19.365 lat=5.146
+2026-02-05 10:14:34,486 | INFO | [STEPS 100 | ALT EP 028] place=0.593 fo_hit=1.000 emp_av=0.593 cost=19.371 lat=4.875
+2026-02-05 10:14:34,773 | INFO | [STEPS 100 | ALT EP 029] place=0.640 fo_hit=0.750 emp_av=0.620 cost=18.490 lat=5.132

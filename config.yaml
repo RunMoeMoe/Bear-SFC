@@ -1,0 +1,96 @@
+"""
+•	路由/不相交约束（EDGE/NODE/DZ）、k_shortest 候选数、链路参数（容量、距离、传播/转发时延），节点 CPU 容量，失效参数，成本权重。
+•	HRL 超参：DQN 动作集 \mathcal{N}=\{2,3,\dots,N_{\max}\}；奖励权重；PPO 超参等。
+"""
+# =============================
+# 全局配置文件 config.yaml
+# =============================
+
+seed: 42             # 全局随机种子
+sim_time: 2000       # 每个 episode 的最大时间步
+episode_num: 30      # 训练集数
+logdir: "runs"       # 日志保存路径
+
+# -----------------------------
+# 拓扑配置
+# -----------------------------
+topology:
+  type: "synthetic"         # "synthetic" | "geant" | "nsfnet" 等
+  num_nodes: 30             # 节点数量（synthetic 用）
+  num_edges: 80             # 边数量（synthetic 用）
+  k_paths: 20               # 候选路径条数
+  disjoint: "EDGE"          # 路径分离模式：EDGE | NODE | DZ
+  link:
+    bw_capacity: 20.0       # 每条边的总带宽
+    prop_delay_per_km: 0.02 # 每公里传播延迟 (ms/km)
+    tx_delay_per_hop: 0.5   # 每跳转发延迟 (ms)
+    dist_mean: 50           # 链路平均长度 km（synthetic）
+    dist_std: 10            # 链路长度标准差
+
+node:
+  cpu_capacity: 200.0       # 每个节点 CPU 容量
+  cpu_per_vnf: 1.0          # 部署一个 VNF 占用 CPU 单位
+  cpu_per_vnf_bk: 1.0       # 热备 VNF 的 CPU 占用 (可设 <1)
+
+# -----------------------------
+# SFC 请求生成
+# -----------------------------
+traffic:
+  arrival_rate: 0.5         # 泊松到达率 (每 dt)
+  duration_mean: 300        # 请求平均生存时间 (time steps)
+  duration_std: 50          # 请求持续时间标准差
+  bw_demand_mean: 1.0       # 平均带宽需求
+  bw_demand_std: 0.2
+  sfc_length_choices: [3, 4, 5, 6, 7]  # VNF 链长度备选
+  sfc_length_probs: [0.2, 0.2, 0.2, 0.2, 0.2]  # 采样概率
+
+# -----------------------------
+# 失效模型
+# -----------------------------
+failures:
+  node_fail_prob: 0.005     # 每时间步节点失效概率
+  edge_fail_prob: 0.005     # 每时间步链路失效概率
+  recovery_time: 200         # 恢复时间步
+
+# -----------------------------
+# 成本模型参数
+# -----------------------------
+cost:
+  lambda_bw: 1.0             # 每单位带宽的成本权重
+  lambda_cpu: 1.0            # 每单位 CPU 的成本权重
+  backup_bw_frac: 1.0        # 备份路径带宽比例 (已不用，可留作兼容)
+
+# -----------------------------
+# HRL 参数
+# -----------------------------
+hrl:
+  # 上层 DQN（中央）
+  central:
+    N_min: 3
+    N_max: 6
+    gamma: 0.95
+    lr: 0.001
+    eps_start: 1.0
+    eps_end: 0.1
+    eps_decay: 0.99
+    hidden: [64, 64]
+
+  # 下层 PPO（边缘）
+  edge:
+    lr: 0.0003
+    gamma: 0.99
+    clip: 0.2
+    epochs: 4
+    batch_size: 64
+    hidden: [128, 128]
+
+# -----------------------------
+# 实验参数
+# -----------------------------
+runner:
+  mode: "train"  # train_central | train_edge | eval
+  epochs: 30
+  steps_per_episode: 2000
+  save_every: 5
+  fixed_N: 3             # train_edge 模式下中央固定的 N
+

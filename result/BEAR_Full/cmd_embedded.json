@@ -1,0 +1,11 @@
+{
+  "algorithm": "BEAR_Full",
+  "mode": "alt",
+  "epochs": 30,
+  "steps": 200,
+  "fixed_N": null,
+  "out": "runs/default",
+  "cfg_path": null,
+  "seed": 42,
+  "resume": false
+}
