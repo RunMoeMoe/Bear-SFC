@@ -1,0 +1,11 @@
+{
+  "algorithm": "BEAR-TORCH",
+  "mode": "train",
+  "epochs": 5,
+  "steps": 500,
+  "fixed_N": null,
+  "out": "runs/default",
+  "cfg_path": "/usr/wzc/project/SFC2/config.yaml",
+  "seed": 42,
+  "resume": false
+}

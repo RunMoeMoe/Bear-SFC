@@ -1,0 +1,7 @@
+2026-03-05 16:51:59,658 | INFO | Output directory: /usr/wzc/project/SFC2/save/BEAR-TORCH/20260305-165159
+2026-03-05 16:52:00,802 | INFO | [RUN] Start sweep for STEPS=1000
+2026-03-05 16:52:08,255 | INFO | [STEPS 1000 | TRAIN EP 000] place=0.215 fo_hit=0.000 emp_av=1.000 cost=19.176 lat=5.683
+2026-03-05 16:52:14,190 | INFO | [STEPS 1000 | TRAIN EP 001] place=0.189 fo_hit=0.000 emp_av=1.000 cost=18.568 lat=5.856
+2026-03-05 16:52:20,166 | INFO | [STEPS 1000 | TRAIN EP 002] place=0.214 fo_hit=0.000 emp_av=1.000 cost=17.248 lat=5.602
+2026-03-05 16:52:26,852 | INFO | [STEPS 1000 | TRAIN EP 003] place=0.187 fo_hit=0.000 emp_av=1.000 cost=15.683 lat=5.564
+2026-03-05 16:52:34,980 | INFO | [STEPS 1000 | TRAIN EP 004] place=0.178 fo_hit=0.000 emp_av=1.000 cost=15.353 lat=5.366

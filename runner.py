@@ -186,12 +186,12 @@ def main():
         # 算法：BEAR-SFC / PRANOS / DRL / MP-DCBJOH / SBD / OPTSEP / BEAR / BEAR-FULL / BEAR-TORCH
         "algorithm": "BEAR-TORCH",
 
-        # 运行模式：train_central / train_edge / eval / alt
+        # 运行模式：train_central / train_edge / eval / alt alt是指交替训练（每轮先 train_central 再 train_edge），eval 是指评估（加载模型，固定策略，产出指标）
         "mode": "alt",
 
         # 训练总集数与每集步数
-        "epochs": 500,
-        "steps": 1000,
+        "epochs": 100,
+        "steps": 500,
 
         # train_edge / eval 下固定路径数 N（None 表示用 N_min）
         "fixed_N": None,
@@ -453,7 +453,7 @@ def main():
         fixed_N = int(CONFIG["fixed_N"]) if CONFIG.get("fixed_N") is not None else None
 
         # Steps sweep list (as requested)
-        steps_sweep = [1000] #, 200, 300, 400, 500, 600, 700, 800, 900, 1500, 2000
+        steps_sweep = [100] #, 200, 300, 400, 500, 600, 700, 800, 900, 1500, 2000
 
         for STEPS in steps_sweep:
             # Repoint episode summary writer to a steps-specific file: episode_summary_<steps>.csv

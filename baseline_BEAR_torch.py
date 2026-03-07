@@ -316,9 +316,9 @@ class BEARTorchSystem:
 
         # Replay buffer
         self.replay_buffer = ReplayBuffer(capacity=5000, device=self.device)
-        self.batch_size    = 64    # 每次更新用的 batch 大小
+        self.batch_size    = 32    # 每次更新用的 batch 大小
         self.update_every  = 10    # 每积累多少条经验做一次批量更新
-        self.warmup_steps  = 200   # buffer 里至少有这么多条才开始更新
+        self.warmup_steps  = 50    # buffer 里至少有这么多条才开始更新
         self._step_count   = 0     # 全局步数计数
 
         # 配额
@@ -798,39 +798,46 @@ class BEARTorchSystem:
         })
 
     # ---------- failover 辅助 ----------
+    def _count_down_active_paths(self, session: Dict[str, Any]) -> int:  # 计算会话中当前不可用的活动路径数量；返回 -1 表示未知
+        if hasattr(self.env, "count_down_active_paths"):  # 如果 env 提供了直接返回计数的接口则优先使用
+            try:
+                return int(self.env.count_down_active_paths(session))  # 调用该接口并将结果转为 int 返回
+            except Exception:
+                pass  # 若调用失败则忽略异常，继续下一个回退方案
+        if hasattr(self.env, "get_down_active_paths"):  # 如果 env 提供了返回 down 路径列表的接口则作为备用
+            try:
+                lst = self.env.get_down_active_paths(session)  # 调用接口获取不可用路径列表
+                return len(lst) if lst is not None else 0  # 列表非 None 则返回长度，否则认为没有 down 路径返回 0
+            except Exception:
+                pass  # 若调用失败则忽略异常，继续回退逻辑
+        # 回退：若 env 无上述接口则尝试从 session 字段推断活动路径并逐条检测
+        paths = session.get("active_set") or session.get("paths_active") or session.get("paths") or []  # 从 session 中尝试提取活动路径字段（多个可能的键）
+        if not hasattr(self.env, "is_path_up"):  # 如果 env 无法逐条检查路径状态，则无法判断，返回 -1 表示未知
+            return -1
+        cnt = 0  # 初始化不可用路径计数器
+        for p in (paths or []):  # 遍历所有候选活动路径（容错空列表）
+            try:
+                if not self.env.is_path_up(p):  # 若该路径当前不可达（is_path_up 返回 False）
+                    cnt += 1  # 计数器加一
+            except Exception:
+                continue  # 若单条路径检查出错则跳过该路径，不影响整体计数
+        return cnt  # 返回检测到的不可用活动路径总数
+    
     # def _count_down_active_paths(self, session: Dict[str, Any]) -> int:
-    #     if hasattr(self.env, "count_down_active_paths"):
-    #         try: return int(self.env.count_down_active_paths(session))
-    #         except Exception: pass
-    #     if hasattr(self.env, "get_down_active_paths"):
-    #         try:
-    #             lst = self.env.get_down_active_paths(session)
-    #             return len(lst) if lst is not None else 0
-    #         except Exception: pass
-    #     # 回退：若无接口则视作未知
-    #     paths = session.get("active_set") or session.get("paths_active") or session.get("paths") or []
-    #     if not hasattr(self.env, "is_path_up"): return -1
+    #     all_paths = session.get("paths", [])
+    #     active_idx = session.get("active_idx", [])
+    #     if not all_paths or not active_idx:
+    #         return 0
     #     cnt = 0
-    #     for p in (paths or []):
-    #         try:
-    #             if not self.env.is_path_up(p): cnt += 1
-    #         except Exception:
-    #             continue
+    #     for idx in active_idx:
+    #         if idx < len(all_paths):
+    #             try:
+    #                 if not self.env.is_path_up(all_paths[idx]):
+    #                     cnt += 1
+    #             except Exception:
+    #                 continue
     #     return cnt
-    def _count_down_active_paths(self, session: Dict[str, Any]) -> int:
-        all_paths = session.get("paths", [])
-        active_idx = session.get("active_idx", [])
-        if not all_paths or not active_idx:
-            return 0
-        cnt = 0
-        for idx in active_idx:
-            if idx < len(all_paths):
-                try:
-                    if not self.env.is_path_up(all_paths[idx]):
-                        cnt += 1
-                except Exception:
-                    continue
-        return cnt
+
 
     # ---------- 单轮 ----------
     def run_one_episode(self, ep_idx: int, steps: int, mode: str = "eval", fixed_N: Optional[int] = None) -> Dict[str, Any]:

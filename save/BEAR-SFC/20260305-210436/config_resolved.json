@@ -1,0 +1,89 @@
+{
+  "seed": 42,
+  "sim_time": 2000,
+  "episode_num": 30,
+  "logdir": "runs",
+  "topology": {
+    "type": "synthetic",
+    "num_nodes": 30,
+    "num_edges": 80,
+    "k_paths": 20,
+    "disjoint": "EDGE",
+    "link": {
+      "bw_capacity": 20.0,
+      "prop_delay_per_km": 0.02,
+      "tx_delay_per_hop": 0.5,
+      "dist_mean": 50,
+      "dist_std": 10
+    }
+  },
+  "node": {
+    "cpu_capacity": 200.0,
+    "cpu_per_vnf": 1.0,
+    "cpu_per_vnf_bk": 1.0
+  },
+  "traffic": {
+    "arrival_rate": 0.5,
+    "duration_mean": 300,
+    "duration_std": 50,
+    "bw_demand_mean": 1.0,
+    "bw_demand_std": 0.2,
+    "sfc_length_choices": [
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "sfc_length_probs": [
+      0.2,
+      0.2,
+      0.2,
+      0.2,
+      0.2
+    ]
+  },
+  "failures": {
+    "node_fail_prob": 0.005,
+    "edge_fail_prob": 0.005,
+    "recovery_time": 200
+  },
+  "cost": {
+    "lambda_bw": 1.0,
+    "lambda_cpu": 1.0,
+    "backup_bw_frac": 1.0
+  },
+  "hrl": {
+    "central": {
+      "N_min": 3,
+      "N_max": 6,
+      "gamma": 0.95,
+      "lr": 0.001,
+      "eps_start": 1.0,
+      "eps_end": 0.1,
+      "eps_decay": 0.99,
+      "hidden": [
+        64,
+        64
+      ]
+    },
+    "edge": {
+      "lr": 0.0003,
+      "gamma": 0.99,
+      "clip": 0.2,
+      "epochs": 4,
+      "batch_size": 64,
+      "hidden": [
+        128,
+        128
+      ]
+    }
+  },
+  "runner": {
+    "mode": "train",
+    "epochs": 30,
+    "steps_per_episode": 2000,
+    "save_every": 5,
+    "fixed_N": 3
+  }
+}

@@ -439,6 +439,7 @@ class BEARFullSystem:
             except Exception:
                 continue
         return cnt
+    
 
     # ---------- 奖励与 bandit 更新 ----------
     def _instant_reward(self,
